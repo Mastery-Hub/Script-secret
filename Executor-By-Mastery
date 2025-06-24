@@ -1,195 +1,12 @@
-repeat
-    wait()
-until game:IsLoaded() and game.Players.LocalPlayer
-
--- Danh sách các key hợp lệ
-local keys = {
-    ["Mastery_103jfo293g9s82949gi29i59g9299"] = true,
-    ["Mastery_103858293j5948djfjgo1948582j5h"] = true,
-    ["Mastery_10485859294858392u4gugj249y8"] = true
+local Config = {
+    ['Key'] = 'Mastery_103jfo293g9s82949gi29i59g9299',
+    ['Key'] = 'Mastery_103858293j5948djfjgo1948582j5h',
+    ['Key'] = 'Mastery_10485859294858392u4gugj249y8',
+    ['Link Key'] = {
+        ['Key 1'] = 'https://mastery-hub.github.io/MasteryHub/',
+        ['Key 2'] = 'https://mastery-hub.github.io/MasteryHub/',
+    },
 }
-
--- Kiểm tra xem Key có tồn taij và đúng không
-if getgenv().Key and keys[getgenv().Key] then
-    print("Whitelist success!")
-  -- Dán script của bây vào đây
-else
-    if not getgenv().Key then
-        -- Nếu không có key, kêu nó nhập zô
-        warn("please enter your key!")
-    end
-    -- Nếu key không đúng, kick mịa nó luôn
-    game.Players.LocalPlayer:Kick("Invalid Key! Please enter your correct key!")
-end
--- Gọi Dữ Liệu Cần Thiết
-
- 
-
-local Players = game:GetService("Players") -- Lấy tất cả người chơi
-
-local HttpService = game:GetService("HttpService") -- Lấy Dịch Vụ Http
-
-local TeleportService = game:GetService("TeleportService") -- Lấy dịch vụ teleport 
-
- 
-
-local player = Players.LocalPlayer -- Bản Thân Mình
-
-local hwid = game:GetService("RbxAnalyticsService"):GetClientId() -- Lấy Hwid Player
-
-local executor = identifyexecutor() -- Lấy executor người chơi dùng
-
-local placeId = game.PlaceId -- PlaceId Hiện Tại
-
-local jobId = game.JobId -- Job Id Server
-
- 
-
-local currentTime = os.date("!%Y-%m-%dT%H:%M:%SZ") -- Lấy thời gian hiện tại (UTC) cho footer
-
- 
-
--- Tạo dữ liệu gửi lên Discord
-
-local Data = {
-
-    ["embeds"] = {
-
-        {
-
-            ["title"] = "Roblox Account Information",
-            ["subtitle"] = "||@member sorry ping||",
-            ["url"] = "https://www.roblox.com/users/"..player.UserId,
-
-            ["description"] = "Display Name: **"..player.DisplayName.."**",
-
-            ["username"] = "Mastery Hub",
-
-            ["avatar_url"] = "https://i.imgur.com/wGkSTbP.png",
-
-            ["color"] = tonumber("0xFFFF00"), -- Đổi màu viền thành vàng
-
-            ["thumbnail"] = {["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=420&height=420&format=png"},
-
-            ["fields"] = {
-
-                {
-
-                    ["name"] = "***User Name:***",
-
-                    ["value"] = "__\n"..player.Name.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***User ID:***",
-
-                    ["value"] = "__\n"..player.UserId.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***Executor:***",
-
-                    ["value"] = "__\n"..executor.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***HWID:***",
-
-                    ["value"] = "__\n"..hwid.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***Place ID:***",
-
-                    ["value"] = "__\n"..placeId.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***Job ID:***",
-
-                    ["value"] = "__\n"..jobId.."\n__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***Script Join:***",
-
-                    ["value"] = "__lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance("..placeId..", \""..jobId.."\", game.Players.LocalPlayer)__",
-
-                    ["inline"] = true
-
-                },
-
-                {
-
-                    ["name"] = "***Thank You***",
-
-                    ["value"] = "***By Using Mastery Hub***",
-
-                    ["inline"] = true
-
-                }
-
-            },
-
-            ["footer"] = {
-
-                ["text"] = "Sent at "..currentTime -- Hiển thị thời gian ở chân embed
-
-            },
-
-            ["timestamp"] = currentTime -- Thêm timestamp Discord để tự hiện thời gian
-
-        }
-
-    }
-
-}
-
- 
-
-local Headers = {["Content-Type"] = "application/json"}
-
-local Encoded = HttpService:JSONEncode(Data)
-
- 
-
--- Gửi Webhook
-
- 
-
-local WebhookURL = "https://discord.com/api/webhooks/1369321585093115974/nqfFDZJGcsYwukfcb3c1FoR5dsnhmX5RgPX38SCgaViZRw-dyQ58sTwdlsw2D4WlyIsU"
-
-local Request = http_request or request or HttpPost or syn.request
-
-if Request then
-
-    Request({Url = WebhookURL, Body = Encoded, Method = "POST", Headers = Headers})
-
-end
 local ScreenGui = Instance.new("ScreenGui")
 local buoi = Instance.new('UICorner')
 local KeyUI = Instance.new("Frame")
@@ -317,7 +134,7 @@ Wallpaper.ScaleType = Enum.ScaleType.Fit
 Wallpaper.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Wallpaper.Position = UDim2.new(-0.0361702, 0, -0.158876, 0)
 Wallpaper.Name = "Wallpaper"
-Wallpaper.Image = "rbxassetid://127057715088982"
+Wallpaper.Image = "rbxassetid://137648248791792"
 Wallpaper.Size = UDim2.new(1.11064, 0, 1.59989, 0)
 Wallpaper.BorderColor3 = Color3.fromRGB(0, 0, 0)
 Wallpaper.Parent = INTRO
@@ -429,7 +246,7 @@ ImageLabel.BorderSizePixel = 0
 ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 ImageLabel.Position = UDim2.new(1, 0, .5, 0)
 ImageLabel.AnchorPoint = Vector2.new(.5,.5)
-ImageLabel.Image = "rbxassetid://100265371620585"
+ImageLabel.Image = "rbxassetid://127496096825237"
 ImageLabel.Size = UDim2.new(0.671884, 0, 15.1201, 0)
 ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 ImageLabel.BackgroundTransparency = 1
@@ -690,6 +507,174 @@ end)
 repeat task.wait() until Whitelisted
 ScreenGui:Destroy()
 print("sech")
+-- Gọi Dữ Liệu Cần Thiết
+
+ 
+
+local Players = game:GetService("Players") -- Lấy tất cả người chơi
+
+local HttpService = game:GetService("HttpService") -- Lấy Dịch Vụ Http
+
+local TeleportService = game:GetService("TeleportService") -- Lấy dịch vụ teleport 
+
+ 
+
+local player = Players.LocalPlayer -- Bản Thân Mình
+
+local hwid = game:GetService("RbxAnalyticsService"):GetClientId() -- Lấy Hwid Player
+
+local executor = identifyexecutor() -- Lấy executor người chơi dùng
+
+local placeId = game.PlaceId -- PlaceId Hiện Tại
+
+local jobId = game.JobId -- Job Id Server
+
+ 
+
+local currentTime = os.date("!%Y-%m-%dT%H:%M:%SZ") -- Lấy thời gian hiện tại (UTC) cho footer
+
+ 
+
+-- Tạo dữ liệu gửi lên Discord
+
+local Data = {
+
+    ["embeds"] = {
+
+        {
+
+            ["title"] = "Roblox Account Information",
+            ["url"] = "https://www.roblox.com/users/"..player.UserId,
+
+            ["description"] = "||```@member Sorry PING```||",
+
+            ["username"] = "Mastery Hub",
+
+            ["avatar_url"] = "https://i.imgur.com/wGkSTbP.png",
+
+            ["color"] = tonumber("0xFFFF00"), -- Đổi màu viền thành vàng
+
+            ["thumbnail"] = {["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=420&height=420&format=png"},
+
+            ["fields"] = {
+
+                {
+
+                    ["name"] = "***User Name:***",
+
+                    ["value"] = "__\n"..player.Name.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***User ID:***",
+
+                    ["value"] = "__\n"..player.UserId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Executor:***",
+
+                    ["value"] = "__\n"..executor.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***HWID:***",
+
+                    ["value"] = "__\n"..hwid.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Place ID:***",
+
+                    ["value"] = "__\n"..placeId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Job ID:***",
+
+                    ["value"] = "__\n"..jobId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Script Join:***",
+
+                    ["value"] = "__lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance("..placeId..", \""..jobId.."\", game.Players.LocalPlayer)__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Thank You***",
+
+                    ["value"] = "***By Using Mastery Hub***",
+
+                    ["inline"] = true
+
+                }
+
+            },
+
+            ["footer"] = {
+
+                ["text"] = "Sent at "..currentTime -- Hiển thị thời gian ở chân embed
+
+            },
+
+            ["timestamp"] = currentTime -- Thêm timestamp Discord để tự hiện thời gian
+
+        }
+
+    }
+
+}
+
+ 
+
+local Headers = {["Content-Type"] = "application/json"}
+
+local Encoded = HttpService:JSONEncode(Data)
+
+ 
+
+-- Gửi Webhook
+
+ 
+
+local WebhookURL = "https://discord.com/api/webhooks/1369321585093115974/nqfFDZJGcsYwukfcb3c1FoR5dsnhmX5RgPX38SCgaViZRw-dyQ58sTwdlsw2D4WlyIsU"
+
+local Request = http_request or request or HttpPost or syn.request
+
+if Request then
+
+    Request({Url = WebhookURL, Body = Encoded, Method = "POST", Headers = Headers})
+
+end
 --- Script cua may o day
 ------------------------------------------------------------------------------------------------------------------------------------
 local ScreenGui = Instance.new("ScreenGui")
@@ -705,7 +690,7 @@ ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
 ImageButton.Size = UDim2.new(0, 50, 0, 50)
 ImageButton.Draggable = true
-ImageButton.Image = "http://www.roblox.com/asset/?id=100265371620585"
+ImageButton.Image = "http://www.roblox.com/asset/?id=127496096825237"
 
 UICorner.CornerRadius = UDim.new(1, 10) 
 UICorner.Parent = ImageButton
@@ -950,7 +935,7 @@ repeat wait() until game:IsLoaded()
 
 local Window = Fluent:CreateWindow({
     Title = "Mastery Hub-Auto Hop [FREEMIUM] ",
-    SubTitle = "| by Qminhdzz",
+    SubTitle = "| by Qminhdz",
     TabWidth = 130,
     Size = UDim2.fromOffset(430, 320),
     Acrylic = true,
@@ -973,18 +958,18 @@ Buy = Window:AddTab({ Title = "Tự Động Mua" }),
 
 local Discord = Tabs.Servers:AddSection("Discord")
 Tabs.Servers:AddButton({
-        Title="Mastery Cominity",
-        Description="Discord",
+        Title="Bio Link",
+        Description="Bio",
         Callback=function()
-            setclipboard(tostring("https://discord.gg/txe4Dheb5H")) 
+            setclipboard(tostring("https://beacons.ai/masteryhubofficial")) 
         end
 })
 
 Tabs.Servers:AddButton({
-        Title="GET KEY LINK",
+        Title="MASTERY HUB",
         Description="Discord",
         Callback=function()
-            setclipboard(tostring("https://mastery-hub.github.io/MasteryHub/")) 
+            setclipboard(tostring("https://discord.gg/txe4Dheb5H")) 
         end
 })
 
@@ -1004,7 +989,7 @@ Tabs.Servers:AddParagraph({
 })
 Tabs.Info:AddParagraph({
     Title="Phát Triển : MASTERY HUB",
-    Content="SCRIPT HOP [FREEMIUM"
+    Content="Yeu Cac Em Vó Tu"
 })
 local executorName
 if identifyexecutor then
@@ -1020,7 +1005,7 @@ if executorName then
 end
 Tabs.Info:AddParagraph({
     Title="Cập Nhật",
-    Content="Script Tổng Hợp Giữa Pe Và  Pc nên Sẽ Có 1 Số Script Không Chạy Được"
+    Content="Script Tổng Hợp Giữa Pe V�  Pc nên Sẽ Có 1 Số Script Không Chạy Được"
 })
 Tabs.Info:AddParagraph({
     Title="Các Client Android Hỗ Trợ",
