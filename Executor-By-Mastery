@@ -1,803 +1,1554 @@
--- Key System UI Script
--- Tạo bởi dex
+repeat
+    wait()
+until game:IsLoaded() and game.Players.LocalPlayer
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
--- Cấu hình
-local validKeys = {
-    "Mastery_103jfo293g9s82949gi29i59g9299", 
-    "Mastery_103858293j5948djfjgo1948582j5h",
-    "Mastery_10485859294858392u4gugj249y80"
+-- Danh sách các key hợp lệ
+local keys = {
+    ["Mastery_103jfo293g9s82949gi29i59g9299"] = true,
+    ["Mastery_103858293j5948djfjgo1948582j5h"] = true,
+    ["Mastery_10485859294858392u4gugj249y8"] = true
 }
 
--- Tạo UI
-local function createKeySystem()
-    local player = Players.LocalPlayer
-    local playerGui = player:WaitForChild("PlayerGui")
-    
-    -- Tạo ScreenGui
-    local keySystemGui = Instance.new("ScreenGui")
-    keySystemGui.Name = "KeySystemGui"
-    keySystemGui.ResetOnSpawn = false
-    keySystemGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    keySystemGui.Parent = playerGui
-    
-    -- Background chính với hiệu ứng blur
-    local mainBackground = Instance.new("Frame")
-    mainBackground.Name = "MainBackground"
-    mainBackground.Size = UDim2.new(1, 0, 1, 0)
-    mainBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    mainBackground.BackgroundTransparency = 0.5
-    mainBackground.BorderSizePixel = 0
-    mainBackground.Parent = keySystemGui
-    
-    -- Blur Effect
-    local blur = Instance.new("BlurEffect")
-    blur.Size = 20
-    blur.Parent = game:GetService("Lighting")
-    
-    -- Container panel
-    local keyPanel = Instance.new("Frame")
-    keyPanel.Name = "KeyPanel"
-    keyPanel.Size = UDim2.new(0, 400, 0, 300)
-    keyPanel.Position = UDim2.new(0.5, -200, 0.5, -150)
-    keyPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    keyPanel.BorderSizePixel = 0
-    keyPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-    keyPanel.Parent = keySystemGui
-    
-    -- Làm tròn các góc
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 10)
-    UICorner.Parent = keyPanel
-    
-    -- Gradient cho Panel
-    local UIGradient = Instance.new("UIGradient")
-    UIGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
-    })
-    UIGradient.Rotation = 45
-    UIGradient.Parent = keyPanel
-    
-    -- Title
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Name = "TitleLabel"
-    titleLabel.Size = UDim2.new(1, 0, 0, 60)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextSize = 24
-    titleLabel.Text = "MasterX executor"
-    titleLabel.Parent = keyPanel
-    
-    -- Đường gạch dưới tiêu đề
-    local titleUnderline = Instance.new("Frame")
-    titleUnderline.Name = "TitleUnderline"
-    titleUnderline.Size = UDim2.new(0.8, 0, 0, 2)
-    titleUnderline.Position = UDim2.new(0.1, 0, 0, 55)
-    titleUnderline.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
-    titleUnderline.BorderSizePixel = 0
-    titleUnderline.Parent = keyPanel
-    
-    -- Description
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Name = "DescLabel"
-    descLabel.Size = UDim2.new(0.9, 0, 0, 40)
-    descLabel.Position = UDim2.new(0.05, 0, 0, 70)
-    descLabel.BackgroundTransparency = 1
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    descLabel.TextSize = 14
-    descLabel.Text = "Nhập key để truy cập vào game"
-    descLabel.TextWrapped = true
-    descLabel.Parent = keyPanel
-    
-    -- Đầu vào key
-    local keyInput = Instance.new("TextBox")
-    keyInput.Name = "KeyInput"
-    keyInput.Size = UDim2.new(0.8, 0, 0, 40)
-    keyInput.Position = UDim2.new(0.1, 0, 0, 120)
-    keyInput.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    keyInput.BorderSizePixel = 0
-    keyInput.Font = Enum.Font.Gotham
-    keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    keyInput.TextSize = 16
-    keyInput.PlaceholderText = "Nhập key tại đây..."
-    keyInput.Text = ""
-    keyInput.ClearTextOnFocus = false
-    keyInput.Parent = keyPanel
-    
-    -- Bo tròn cho input
-    local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 6)
-    inputCorner.Parent = keyInput
-    
-    -- Nút Submit
-    local submitButton = Instance.new("TextButton")
-    submitButton.Name = "SubmitButton"
-    submitButton.Size = UDim2.new(0.5, 0, 0, 40)
-    submitButton.Position = UDim2.new(0.25, 0, 0, 180)
-    submitButton.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
-    submitButton.BorderSizePixel = 0
-    submitButton.Font = Enum.Font.GothamBold
-    submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    submitButton.TextSize = 16
-    submitButton.Text = "XÁC NHẬN"
-    submitButton.Parent = keyPanel
-    
-    -- Bo tròn cho nút
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 6)
-    buttonCorner.Parent = submitButton
-    
-    -- Thông báo trạng thái
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Name = "StatusLabel"
-    statusLabel.Size = UDim2.new(0.9, 0, 0, 30)
-    statusLabel.Position = UDim2.new(0.05, 0, 0, 240)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    statusLabel.TextSize = 14
-    statusLabel.Text = ""
-    statusLabel.Parent = keyPanel
-    
-    -- Nút Copy Key (tùy chọn)
-    local getKeyButton = Instance.new("TextButton")
-    getKeyButton.Name = "GetKeyButton"
-    getKeyButton.Size = UDim2.new(0.5, 0, 0, 30)
-    getKeyButton.Position = UDim2.new(0.25, 0, 0, 260)
-    getKeyButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    getKeyButton.BorderSizePixel = 0
-    getKeyButton.Font = Enum.Font.Gotham
-    getKeyButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-    getKeyButton.TextSize = 14
-    getKeyButton.Text = "get key"
-    getKeyButton.Parent = keyPanel
-    
-    -- Bo tròn cho nút lấy key
-    local getKeyCorner = Instance.new("UICorner")
-    getKeyCorner.CornerRadius = UDim.new(0, 6)
-    getKeyCorner.Parent = getKeyButton
-    
-    -- Hiệu ứng xuất hiện
-    keyPanel.Position = UDim2.new(0.5, -200, 1.5, 0)
-    local appearTween = TweenService:Create(
-        keyPanel,
-        TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-        {Position = UDim2.new(0.5, -200, 0.5, -150)}
-    )
-    appearTween:Play()
-    
-    -- Xử lý sự kiện
-    submitButton.MouseButton1Click:Connect(function()
-        local enteredKey = keyInput.Text
-        
-        -- Hiệu ứng khi nhấn
-        local clickTween = TweenService:Create(
-            submitButton,
-            TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {BackgroundColor3 = Color3.fromRGB(200, 60, 60)}
-        )
-        clickTween:Play()
-        
-        -- Kiểm tra key
-        local keyValid = false
-        for _, validKey in ipairs(validKeys) do
-            if enteredKey == validKey then
-                keyValid = true
-                break
-            end
-        end
-        
-        if keyValid then
-            statusLabel.Text = "Key hợp lệ! Đang vào game..."
-            statusLabel.TextColor3 = Color3.fromRGB(75, 255, 75)
-            
-            -- Hiệu ứng thành công
-            local successTween = TweenService:Create(
-                submitButton,
-                TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-                {BackgroundColor3 = Color3.fromRGB(75, 255, 75)}
-            )
-            successTween:Play()
-            
-            -- Đóng giao diện sau 2 giây
-            wait(2)
-            
-            -- Hiệu ứng biến mất
-            local disappearTween = TweenService:Create(
-                keyPanel,
-                TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In),
-                {Position = UDim2.new(0.5, -200, 1.5, 0)}
-            )
-            disappearTween:Play()
-            
-            -- Xóa blur và UI
-            disappearTween.Completed:Connect(function()
-                blur:Destroy()
-                keySystemGui:Destroy()
-                
-                -- Tại đây bạn có thể chạy mã để cho phép người chơi truy cập vào game
-                -- VD: loadGame() hoặc teleportToMap()
-            end)
-        else
-            statusLabel.Text = "Key không hợp lệ. Vui lòng thử lại."
-            statusLabel.TextColor3 = Color3.fromRGB(255, 75, 75)
-            
-            -- Hiệu ứng rung khi key sai
-            local originalPosition = keyInput.Position
-            for i = 1, 5 do
-                keyInput.Position = originalPosition + UDim2.new(0, 5, 0, 0)
-                wait(0.05)
-                keyInput.Position = originalPosition - UDim2.new(0, 5, 0, 0)
-                wait(0.05)
-            end
-            keyInput.Position = originalPosition
-            
-            -- Reset màu nút sau 0.5 giây
-            wait(0.5)
-            local resetTween = TweenService:Create(
-                submitButton,
-                TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-                {BackgroundColor3 = Color3.fromRGB(255, 75, 75)}
-            )
-            resetTween:Play()
-        end
-    end)
-    
-    getKeyButton.MouseButton1Click:Connect(function()
-        -- Mở trang web để lấy key hoặc hiển thị hướng dẫn
-        -- Ở đây tôi chỉ thay đổi văn bản để giả lập việc lấy key
-        statusLabel.Text = "hãy truy cập vào https://mastery-hub.github.io/MasteryHub/ để getkey"
-        statusLabel.TextColor3 = Color3.fromRGB(75, 175, 255)
-    end)
-    
-    -- Hiệu ứng hover cho nút
-    submitButton.MouseEnter:Connect(function()
-        local hoverTween = TweenService:Create(
-            submitButton,
-            TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {BackgroundColor3 = Color3.fromRGB(255, 100, 100)}
-        )
-        hoverTween:Play()
-    end)
-    
-    submitButton.MouseLeave:Connect(function()
-        local leaveTween = TweenService:Create(
-            submitButton,
-            TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {BackgroundColor3 = Color3.fromRGB(255, 75, 75)}
-        )
-        leaveTween:Play()
-    end)
-    
-    -- Kéo thả panel
-    local isDragging = false
-    local dragInput
-    local dragStart
-    local startPos
-    
-    keyPanel.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = true
-            dragStart = input.Position
-            startPos = keyPanel.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    isDragging = false
-                end
-            end)
-        end
-    end)
-    
-    keyPanel.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and isDragging then
-            local delta = input.Position - dragStart
-            keyPanel.Position = UDim2.new(
-                startPos.X.Scale, 
-                startPos.X.Offset + delta.X, 
-                startPos.Y.Scale, 
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
+-- Kiểm tra xem Key có tồn taij và đúng không
+if getgenv().Key and keys[getgenv().Key] then
+    print("Whitelist success!")
+  -- Dán script của bây vào đây
+else
+    if not getgenv().Key then
+        -- Nếu không có key, kêu nó nhập zô
+        warn("please enter your key!")
+    end
+    -- Nếu key không đúng, kick mịa nó luôn
+    game.Players.LocalPlayer:Kick("Invalid Key! Please enter your correct key!")
 end
---[[
+-- discord.gg/AbYeHux9
+----- đoạn đầu
 
-█ ██╗  ██╗███████╗███╗   ██╗███╗   ██╗██╗   ██╗
+
+shared.LoaderTitle = "Script Make By Qminh (Kenny)";
+shared.LoaderKeyFrames = {
+    [1] = {
+        1,
+        5
+    },
+    [2] = {
+        2,
+        20
+    },
+    [3] = {
+        3,
+        50
+    },
+    [4] = {
+        2,
+        100
+    }
+};
+local v2 = {
+    LoaderData = {
+        Name = shared.LoaderTitle or "Loading...",
+        Colors = shared.LoaderColors or {
+            Main = Color3.fromRGB(0, 0, 0),
+            Topic = Color3.fromRGB(0, 0, 0),
+            Title = Color3.fromRGB(255, 255, 255),
+            LoaderBackground = Color3.fromRGB(0, 0, 0),
+            LoaderSplash = Color3.fromRGB(255, 255, 255)
+        }
+    },
+    Keyframes = shared.LoaderKeyFrames or {
+        [1] = {
+            1,
+            5
+        },
+        [2] = {
+            2,
+            20
+        },
+        [3] = {
+            3,
+            50
+        },
+        [4] = {
+            2,
+            100
+        }
+    }
+};
+local v3 = {
+    [1] = "",
+    [2] = "",
+    [3] = "",
+    [4] = ""
+};
+function TweenObject(v178, v179, v180)
+    game.TweenService:Create(v178, TweenInfo.new(v179, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), v180):Play();
+end
+function CreateObject(v181, v182)
+    local v183 = Instance.new(v181);
+    local v184;
+    for v416, v417 in pairs(v182) do
+        if (v416 ~= "Parent") then
+            v183[v416] = v417;
+        else
+            v184 = v417;
+        end
+    end
+    v183.Parent = v184;
+    return v183;
+end
+local function v4(v186, v187)
+    local v188 = Instance.new("UICorner");
+    v188.CornerRadius = UDim.new(0, v186);
+    v188.Parent = v187;
+end
+local v5 = CreateObject("ScreenGui", {
+    Name = "Core",
+    Parent = game.CoreGui
+});
+local v6 = CreateObject("Frame", {
+    Name = "Main",
+    Parent = v5,
+    BackgroundColor3 = v2.LoaderData.Colors.Main,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Size = UDim2.new(0, 0, 0, 0)
+});
+v4(12, v6);
+local v7 = CreateObject("ImageLabel", {
+    Name = "UserImage",
+    Parent = v6,
+    BackgroundTransparency = 1,
+    Image = "rbxassetid://131401699980168",
+    Position = UDim2.new(0, 15, 0, 10),
+    Size = UDim2.new(0, 50, 0, 50)
+});
+v4(25, v7);
+local v8 = CreateObject("TextLabel", {
+    Name = "UserName",
+    Parent = v6,
+    BackgroundTransparency = 1,
+    Text = "Script: MacGox hub(grow a garden)",
+    Position = UDim2.new(0, 75, 0, 10),
+    Size = UDim2.new(0, 200, 0, 50),
+    Font = Enum.Font.GothamBold,
+    TextColor3 = v2.LoaderData.Colors.Title,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left
+});
+local v9 = CreateObject("TextLabel", {
+    Name = "Top",
+    TextTransparency = 1,
+    Parent = v6,
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 30, 0, 70),
+    Size = UDim2.new(0, 301, 0, 20),
+    Font = Enum.Font.Gotham,
+    Text = "Loader",
+    TextColor3 = v2.LoaderData.Colors.Topic,
+    TextSize = 10,
+    TextXAlignment = Enum.TextXAlignment.Left
+});
+local v10 = CreateObject("TextLabel", {
+    Name = "Title",
+    Parent = v6,
+    TextTransparency = 1,
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 30, 0, 90),
+    Size = UDim2.new(0, 301, 0, 46),
+    Font = Enum.Font.Gotham,
+    RichText = true,
+    Text = "<b>" .. v2.LoaderData.Name .. "</b>",
+    TextColor3 = v2.LoaderData.Colors.Title,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left
+});
+local v11 = CreateObject("Frame", {
+    Name = "BG",
+    Parent = v6,
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundTransparency = 1,
+    BackgroundColor3 = v2.LoaderData.Colors.LoaderBackground,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0, 70),
+    Size = UDim2.new(0.8500000238418579, 0, 0, 24)
+});
+v4(8, v11);
+local v12 = CreateObject("Frame", {
+    Name = "Progress",
+    Parent = v11,
+    BackgroundColor3 = v2.LoaderData.Colors.LoaderSplash,
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Size = UDim2.new(0, 0, 0, 24)
+});
+v4(8, v12);
+local v13 = CreateObject("TextLabel", {
+    Name = "StepLabel",
+    Parent = v6,
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0.5, 0, 1, - 25),
+    Size = UDim2.new(1, - 20, 0, 20),
+    Font = Enum.Font.Gotham,
+    Text = "",
+    TextColor3 = v2.LoaderData.Colors.Topic,
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    AnchorPoint = Vector2.new(0.5, 0.5)
+});
+function UpdateStepText(v191)
+    v13.Text = v3[v191] or "" ;
+end
+function UpdatePercentage(v193, v194)
+    TweenObject(v12, 0.5, {
+        Size = UDim2.new(v193 / 100, 0, 0, 24)
+    });
+    UpdateStepText(v194);
+end
+TweenObject(v6, 0.25, {
+    Size = UDim2.new(0, 346, 0, 121)
+});
+wait();
+TweenObject(v9, 0.5, {
+    TextTransparency = 0
+});
+TweenObject(v10, 0.5, {
+    TextTransparency = 0
+});
+TweenObject(v11, 0.5, {
+    BackgroundTransparency = 0
+});
+TweenObject(v12, 0.5, {
+    BackgroundTransparency = 0
+});
+for v195, v196 in pairs(v2.Keyframes) do
+    wait(v196[1]);
+    UpdatePercentage(v196[2], v195);
+end
+UpdatePercentage(100, 4);
+TweenObject(v9, 0.5, {
+    TextTransparency = 1
+});
+TweenObject(v10, 0.5, {
+    TextTransparency = 1
+});
+TweenObject(v11, 0.5, {
+    BackgroundTransparency = 1
+});
+TweenObject(v12, 0.5, {
+    BackgroundTransparency = 1
+});
+wait(0.5);
+TweenObject(v6, 0.25, {
+    Size = UDim2.new(0, 0, 0, 0)
+});
+wait(0.25);
+v5:Destroy();
+-- spawn(function()
+--     while wait() do
+--         function print()
+--         end
+--         function warn()
+--         end
+--         function error()
+--         end
+--         debug.traceback = function()
+--             return "Traceback blocked";
+--         end;
+--         debug.info = function()
+--             return "Info blocked";
+--         end;
+--         local v420 = getrawmetatable(game);
+--         if (v420 and not v420.__metatable) then
+--             setreadonly(v420, false);
+--             local v658 = v420.__index;
+--             local v659 = v420.__newindex;
+--             v420.__index = function(v759, v760)
+--                 if ((v760 == "debug") or (v760 == "getrawmetatable")) then
+--                     error("Anti Skid: Tampering detected!");
+--                 end
+--                 return v658(v759, v760);
+--             end;
+--             v420.__newindex = function(v761, v762, v763)
+--                 if ((v762 == "debug") or (v762 == "getrawmetatable")) then
+--                     error("Anti Skid: Tampering detected!");
+--                 end
+--                 return v659(v761, v762, v763);
+--             end;
+--             setreadonly(v420, true);
+--         end
+--         local function v421()
+--             local v568 = {
+--                 "_G",
+--                 "debug",
+--                 "getgenv",
+--                 "getrawmetatable",
+--                 "setfenv",
+--                 "loadstring",
+--                 "hookfunction"
+--             };
+--             for v662, v663 in ipairs(v568) do
+--                 local v664, v665 = pcall(function()
+--                     return _G[v663];
+--                 end);
+--                 if (v664 and v665) then
+--                     error("Anti Skid: Environment tampering detected!");
+--                 end
+--             end
+--         end
+--         local function v422()
+--             local v569 = {
+--                 getrawmetatable,
+--                 setreadonly,
+--                 getgenv,
+--                 debug.getinfo,
+--                 debug.getregistry
+--             };
+--             for v666, v667 in ipairs(v569) do
+--                 if v667 then
+--                     error("Anti Skid: Hook tampering detected!");
+--                 end
+--             end
+--         end
+--         local v423 = game:FindService("HttpService");
+--         if v423 then
+--             v423.RequestAsync = function()
+--                 error("HTTP Requests Blocked");
+--             end;
+--             v423.GetAsync = function()
+--                 error("HTTP Get Blocked");
+--             end;
+--             v423.PostAsync = function()
+--                 error("HTTP Post Blocked");
+--             end;
+--         end
+--         function collectgarbage()
+--             error("GC Blocked");
+--         end
+--         os.time = function()
+--             error("OS Time Blocked");
+--         end;
+--         pcall(v421);
+--         pcall(v422);
+--     end
+-- end);
+--[[
+██╗  ██╗███████╗███╗   ██╗███╗   ██╗██╗   ██╗
 ██║ ██╔╝██╔════╝████╗  ██║████╗  ██║╚██╗ ██╔╝
 █████╔╝ █████╗  ██╔██╗ ██║██╔██╗ ██║ ╚████╔╝ 
 ██╔═██╗ ██╔══╝  ██║╚██╗██║██║╚██╗██║  ╚██╔╝  
 ██║  ██╗███████╗██║ ╚████║██║ ╚████║   ██║   
 ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═╝  ╚═══╝   ╚═╝   
                                              
-                                  █████████████████████████████████████████
-                                  █  Design by LongHip12                                      █
-                                  █  https://longhip2012.github.io/SouceRoblox  █
-                                  █     Source • Tool                                                       █
-                                  █████████████████████████████████████████
-                                  \______ Cảm ơn đã tin tưởng và sử dụng dịch vụ của chúng tôi ❤️
+[+] Mastery Team Cảm Ơn Bạn Đã Tin Tưởng Và Sử Dụng Dịch Vụ Của Chúng Tôi, Nếu Thấy Hữu Ít Hãy Chia Sẻ Cho Bạn Bè Của Bạn !!
+[+] Không Được Share Hay Crack Mã Nguồn Này Cho Ai! Nếu Không Bạn Sẽ Bị Ban IP Khỏi Website Vĩnh Viễn!
+[+] Chúng Tôi Không Nhận Hỗ Trợ Những Mã Nguồn Miễn Phí, Xin Đừng Bảo Vì Sao. Liên Hệ Hỗ Trợ Tại: https://nguyennhatit.pages.dev
+[+] Nếu Bạn Edit Source Và Up Web Share Nhớ Obfuscate Script. Nếu Bạn Có Tiền Thì Sử Dụng: Lura.Ph, Luarmor.Net | Nếu Bạn Không Có Tiền Thì Dùng: luaobfuscate.com, MoonSec, 77Fuscate,... Nhé!
+]]
+-- Gọi Dữ Liệu Cần Thiết
 
--- Mã nguồn trên shop nhằm mục đích học tập và hoàn toàn miễn phí nên anh em không nên đem đi bán và lạm dụng source đi lùa gà nếu bị phát hiện thì bạn sẽ bị ban ip vĩnh viễn!
--- Source trên shop anh em mua về là up lên github thì nhớ obf lại nhé và có thể tham khảo Moonsec V3 ; luaobfuscator.com ; Base64 v.v hoặc có tiền thì mua lura.ph nhé!
--- Ủng hộ tôi bằng cách truy cập vào PlayerDuo của tôi tại https://linkbio.co/LongHip12 nhé.rất chân thành cảm ơn.
-]]--
+ 
 
-------------------------------------------------------------------------------------------------------------------------------Source------------------------------------------------------------------------------------------------------------------------------
-local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "AdvancedExecutorUI"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+local Players = game:GetService("Players") -- Lấy tất cả người chơi
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-mainFrame.BorderSizePixel = 0
-mainFrame.ClipsDescendants = true
-mainFrame.Parent = screenGui
+local HttpService = game:GetService("HttpService") -- Lấy Dịch Vụ Http
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 15)
-corner.Parent = mainFrame
+local TeleportService = game:GetService("TeleportService") -- Lấy dịch vụ teleport 
 
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 25)
-titleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = mainFrame
+ 
 
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 15)
-titleCorner.Parent = titleBar
+local player = Players.LocalPlayer -- Bản Thân Mình
 
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(0, 200, 1, 0)
-titleText.Position = UDim2.new(0, 10, 0, 0)
-titleText.BackgroundTransparency = 1
-titleText.Text = "Lonely X Executor"
-titleText.Font = Enum.Font.Gotham
-titleText.TextSize = 16
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.Parent = titleBar
+local hwid = game:GetService("RbxAnalyticsService"):GetClientId() -- Lấy Hwid Player
 
-local textEditor = Instance.new("TextBox")
-textEditor.Size = UDim2.new(1, -20, 0.9, -25)
-textEditor.Position = UDim2.new(0, 10, 0, 30)
-textEditor.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-textEditor.TextColor3 = Color3.fromRGB(255, 255, 255)
-textEditor.Text = "print(\"Lonely X executor\")"
-textEditor.TextWrapped = true
-textEditor.ClearTextOnFocus = false
-textEditor.Font = Enum.Font.Gotham
-textEditor.TextSize = 16
-textEditor.TextXAlignment = Enum.TextXAlignment.Left
-textEditor.TextYAlignment = Enum.TextYAlignment.Top
-textEditor.BackgroundTransparency = 0
-textEditor.BorderSizePixel = 0
-textEditor.MultiLine = true
-textEditor.Parent = mainFrame
+local executor = identifyexecutor() -- Lấy executor người chơi dùng
 
-textEditor.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        textEditor.Text = textEditor.Text .. "\n"
+local placeId = game.PlaceId -- PlaceId Hiện Tại
+
+local jobId = game.JobId -- Job Id Server
+
+ 
+
+local currentTime = os.date("!%Y-%m-%dT%H:%M:%SZ") -- Lấy thời gian hiện tại (UTC) cho footer
+
+ 
+
+-- Tạo dữ liệu gửi lên Discord
+
+local Data = {
+
+    ["embeds"] = {
+
+        {
+
+            ["title"] = "Roblox Account Information",
+            ["subtitle"] = "||@member sorry ping||",
+            ["url"] = "https://www.roblox.com/users/"..player.UserId,
+
+            ["description"] = "Display Name: **"..player.DisplayName.."**",
+
+            ["username"] = "Mastery Hub",
+
+            ["avatar_url"] = "https://i.imgur.com/wGkSTbP.png",
+
+            ["color"] = tonumber("0xFFFF00"), -- Đổi màu viền thành vàng
+
+            ["thumbnail"] = {["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=420&height=420&format=png"},
+
+            ["fields"] = {
+
+                {
+
+                    ["name"] = "***User Name:***",
+
+                    ["value"] = "__\n"..player.Name.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***User ID:***",
+
+                    ["value"] = "__\n"..player.UserId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Executor:***",
+
+                    ["value"] = "__\n"..executor.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***HWID:***",
+
+                    ["value"] = "__\n"..hwid.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Place ID:***",
+
+                    ["value"] = "__\n"..placeId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Job ID:***",
+
+                    ["value"] = "__\n"..jobId.."\n__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Script Join:***",
+
+                    ["value"] = "__lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance("..placeId..", \""..jobId.."\", game.Players.LocalPlayer)__",
+
+                    ["inline"] = true
+
+                },
+
+                {
+
+                    ["name"] = "***Thank You***",
+
+                    ["value"] = "***By Using Mastery Hub***",
+
+                    ["inline"] = true
+
+                }
+
+            },
+
+            ["footer"] = {
+
+                ["text"] = "Sent at "..currentTime -- Hiển thị thời gian ở chân embed
+
+            },
+
+            ["timestamp"] = currentTime -- Thêm timestamp Discord để tự hiện thời gian
+
+        }
+
+    }
+
+}
+
+ 
+
+local Headers = {["Content-Type"] = "application/json"}
+
+local Encoded = HttpService:JSONEncode(Data)
+
+ 
+
+-- Gửi Webhook
+
+ 
+
+local WebhookURL = "https://discord.com/api/webhooks/1369321585093115974/nqfFDZJGcsYwukfcb3c1FoR5dsnhmX5RgPX38SCgaViZRw-dyQ58sTwdlsw2D4WlyIsU"
+
+local Request = http_request or request or HttpPost or syn.request
+
+if Request then
+
+    Request({Url = WebhookURL, Body = Encoded, Method = "POST", Headers = Headers})
+
+end
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/hungquan99/FluentUI/master/Addons/SaveManager.lua"))()
+
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/hungquan99/FluentUI/master/Addons/InterfaceManager.lua"))()
+
+local lp = game.Players.LocalPlayer
+
+local minimizeUI = Enum.KeyCode.RightAlt
+
+-- ðŸŸ¢ Create Main UI
+local Window = Fluent:CreateWindow({
+    Title = "Mastery hub V1.5",
+    SubTitle = "Grow a Garden",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(480, 360),
+    Acrylic = false,
+    Theme = "Darker",
+    MinimizeKey = minimizeUI
+})
+
+-- Tabs
+local Tabs = {
+    Info = Window:AddTab({ Title = "Info", Icon = "Info" }),
+    Farm = Window:AddTab({ Title = "Farm", Icon = "rbxassetid://121302760641013" }),
+    Items = Window:AddTab({ Title = "Items", Icon = "rbxassetid://121302760641013" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "rbxassetid://121302760641013" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "rbxassetid://121302760641013" }),
+    Settings = Window:AddTab({ Title = "Setting", Icon = "rbxassetid://121302760641013" }),
+}  
+
+
+
+
+--------------- All code ----------------
+
+-- Info
+Info:AddButton({
+    Title = "Copy discord invite link",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://discord.gg/BHAwJYud")
+        end)
+    end
+})
+Info:AddButton({
+    Title = "Copy bio link",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://linkbio.co/caythuemaster")
+        end)
+    end
+})
+Info:AddButton({
+    Title = "Copy getkey link",
+    Callback = function()
+        pcall(function()
+            setclipboard("https://mastery-hub.github.io/MasteryHub/")
+        end)
+    end
+})
+-- Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local VirtualUser = game:GetService("VirtualUser")
+local GuiService = game:GetService("GuiService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+
+-- Utility Functions
+local function parseMoney(moneyStr)
+    if not moneyStr then return 0 end
+    moneyStr = tostring(moneyStr):gsub("Ã‚Â¢", ""):gsub(",", ""):gsub(" ", ""):gsub("%$", "")
+    local multiplier = 1
+    if moneyStr:lower():find("k") then
+        multiplier = 1000
+        moneyStr = moneyStr:lower():gsub("k", "")
+    elseif moneyStr:lower():find("m") then
+        multiplier = 1000000
+        moneyStr = moneyStr:lower():gsub("m", "")
+    end
+    return (tonumber(moneyStr) or 0) * multiplier
+end
+
+local function getPlayerMoney()
+    return parseMoney((shecklesStat and shecklesStat.Value) or 0)
+end
+
+local function isInventoryFull()
+    return #lp.Backpack:GetChildren() >= 200
+end 
+
+
+
+
+
+
+
+-------- Click Button Code --------
+
+-- TÃ­ch há»£p Ä‘áº§y Ä‘á»§ Auto Farm trong Fluent UI
+local AutoFarmToggle = Tabs.Farm:AddToggle("AutoFarmToggle", {
+    Title = "Auto Farm",
+    Default = false
+})
+
+AutoFarmToggle:OnChanged(function(state)
+    local autoFarmEnabled = state
+    local farmThread
+
+    local function updateFarmData()
+        farms = {}
+        plants = {}
+        for _, farm in pairs(workspace:FindFirstChild("Farm"):GetChildren()) do
+            local data = farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Data")
+            if data and data:FindFirstChild("Owner") and data.Owner.Value == lp.Name then
+                table.insert(farms, farm)
+                local plantsFolder = farm.Important:FindFirstChild("Plants_Physical")
+                if plantsFolder then
+                    for _, plantModel in pairs(plantsFolder:GetChildren()) do
+                        for _, part in pairs(plantModel:GetDescendants()) do
+                            if part:IsA("BasePart") and part:FindFirstChildOfClass("ProximityPrompt") then
+                                table.insert(plants, part)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function glitchTeleport(pos)
+        if not lp.Character then return end
+        local root = lp.Character:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        local tween = TweenService:Create(root, TweenInfo.new(0.15, Enum.EasingStyle.Linear), {
+            CFrame = CFrame.new(pos + Vector3.new(0, 5, 0))
+        })
+        tween:Play()
+    end
+
+    local function isInventoryFull()
+        return #lp.Backpack:GetChildren() >= 200
+    end
+
+    if autoFarmEnabled then
+        farmThread = task.spawn(function()
+            while autoFarmEnabled do
+                while isInventoryFull() do
+                    if not autoFarmEnabled then return end
+                    task.wait(1)
+                end
+
+                if not autoFarmEnabled then return end
+                updateFarmData()
+
+                for _, part in pairs(plants) do
+                    if not autoFarmEnabled then return end
+                    if isInventoryFull() then break end
+                    if part and part.Parent then
+                        local prompt = part:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                            glitchTeleport(part.Position)
+                            task.wait(0.2)
+
+                            for _, farm in pairs(farms) do
+                                if not autoFarmEnabled or isInventoryFull() then break end
+                                for _, obj in pairs(farm:GetDescendants()) do
+                                    if obj:IsA("ProximityPrompt") then
+                                        local str = tostring(obj.Parent)
+                                        if not (str:find("Grow_Sign") or str:find("Core_Part")) then
+                                            fireproximityprompt(obj, 1)
+                                        end
+                                    end
+                                end
+                            end
+
+                            if not autoFarmEnabled then return end
+                            task.wait(0.2)
+                        end
+                    end
+                end
+
+                if autoFarmEnabled then task.wait(0.1) end
+            end
+        end)
+    elseif farmThread then
+        task.cancel(farmThread)
+        farmThread = nil
     end
 end)
 
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Size = UDim2.new(0, 25, 0, 25) -- Hình vuông bo tròn
-minimizeButton.Position = UDim2.new(1, -50, 0, 0)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Màu xám
-minimizeButton.Text = "-"
-minimizeButton.Font = Enum.Font.Gotham
-minimizeButton.TextSize = 18
-minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimizeButton.Parent = titleBar
 
-local minCorner = Instance.new("UICorner")
-minCorner.CornerRadius = UDim.new(0, 10)
-minCorner.Parent = minimizeButton
 
--- Nút đóng (Close) - Hình vuông bo tròn màu xám
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 25, 0, 25) -- Hình vuông bo tròn
-closeButton.Position = UDim2.new(1, -25, 0, 0)
-closeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80) -- Màu xám
-closeButton.Text = "X"
-closeButton.Font = Enum.Font.Gotham
-closeButton.TextSize = 18
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.Parent = titleBar
 
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 10)
-closeCorner.Parent = closeButton
 
--- Dịch chuyển mượt mà cho Frame chính
+local autoBuySeeds = false
+local autoBuyGears = false
+local autoBuyEventItems = false
+
+-- Mua háº¡t giá»‘ng
+Tabs.Farm:AddToggle("AutoBuySeeds", {
+    Title = "Auto Buy Seed",
+    Default = false,
+    Callback = function(Value)
+        autoBuySeeds = Value
+        task.spawn(function()
+            while autoBuySeeds do
+                for _, name in ipairs({
+                    "Carrot","Strawberry","Blueberry","Orange Tulip","Tomato",
+                    "Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo",
+                    "Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom",
+                    "Pepper","Cacao","Beanstalk"
+                }) do
+                    ReplicatedStorage.GameEvents.BuySeedStock:FireServer(name)
+                end
+                task.wait(2)
+            end
+        end)
+    end
+})
+
+
+
+local AutoCollectToggle = Tabs.Farm:AddToggle("AutoCollectV2Toggle", {
+    Title = "Auto Collect V2",
+    Default = false
+})
+
+local spamE = false
+local RANGE = 50
+local promptTracker = {}
+local collectionThread
+local descendantConnection
+
+local function modifyPrompt(prompt, show)
+    pcall(function()
+        prompt.RequiresLineOfSight = not show
+        prompt.Exclusivity = show and Enum.ProximityPromptExclusivity.AlwaysShow or Enum.ProximityPromptExclusivity.One
+    end)
+end
+
+local function isInsideFarm(part)
+    for _, farm in pairs(workspace:WaitForChild("Farm"):GetChildren()) do
+        if part:IsDescendantOf(farm) then
+            return true
+        end
+    end
+    return false
+end
+
+local function handleNewPrompt(prompt)
+    if not prompt:IsA("ProximityPrompt") then return end
+    if not isInsideFarm(prompt) then return end
+
+    if not promptTracker[prompt] then
+        promptTracker[prompt] = {
+            originalRequiresLOS = prompt.RequiresLineOfSight,
+            originalExclusivity = prompt.Exclusivity
+        }
+    end
+
+    modifyPrompt(prompt, spamE)
+    prompt.AncestryChanged:Connect(function(_, parent)
+        if parent == nil then
+            promptTracker[prompt] = nil
+        end
+    end)
+end
+
+local function startAutoCollect()
+    descendantConnection = workspace.DescendantAdded:Connect(handleNewPrompt)
+    for _, desc in ipairs(workspace:GetDescendants()) do
+        handleNewPrompt(desc)
+    end
+end
+
+local function stopAutoCollect()
+    if descendantConnection then
+        descendantConnection:Disconnect()
+        descendantConnection = nil
+    end
+    for prompt, _ in pairs(promptTracker) do
+        modifyPrompt(prompt, false)
+    end
+    promptTracker = {}
+end
+
+AutoCollectToggle:OnChanged(function(state)
+    spamE = state
+    if spamE then
+        startAutoCollect()
+    else
+        stopAutoCollect()
+    end
+end)
+
+
+
+
+local autoSellEnabled = false
+local autoSellThread
+
+local function sellItems()
+    local steven = workspace.NPCS:FindFirstChild("Steven")
+    if not steven then return false end
+    
+    local char = lp.Character
+    if not char then return false end
+    
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    
+    local originalPosition = hrp.CFrame
+    hrp.CFrame = steven.HumanoidRootPart.CFrame * CFrame.new(0, 3, 3)
+    task.wait(0.5)
+    
+    for _ = 1, 5 do
+        pcall(function()
+            ReplicatedStorage.GameEvents.Sell_Inventory:FireServer()
+        end)
+        task.wait(0.15)
+    end
+    
+    hrp.CFrame = originalPosition
+    return true
+end
+
+-- Táº¡o nÃºt Auto Sell
+local AutoSellToggle = Tabs.Farm:AddToggle("AutoSellToggle", {
+    Title = "Auto Sell All",
+    Default = false
+})
+
+AutoSellToggle:OnChanged(function(state)
+    autoSellEnabled = state
+
+    if autoSellEnabled then
+        autoSellThread = task.spawn(function()
+            while autoSellEnabled do
+                sellItems()
+                task.wait(1) -- Äá»£i 1 giÃ¢y trÆ°á»›c láº§n bÃ¡n tiáº¿p theo
+            end
+        end)
+    else
+        if autoSellThread then
+            task.cancel(autoSellThread)
+            autoSellThread = nil
+        end
+    end
+end)
+
+
+
+
+
+
+
+
+local HarvestEnabled = false
+local HarvestConnection = nil
+
+local function FindGarden()
+    local farm = workspace:FindFirstChild("Farm")
+    if not farm then return nil end
+    
+    for _, plot in ipairs(farm:GetChildren()) do
+        local data = plot:FindFirstChild("Important") and plot.Important:FindFirstChild("Data")
+        local owner = data and data:FindFirstChild("Owner")
+        if owner and owner.Value == lp.Name then
+            return plot
+        end
+    end
+    return nil
+end
+
+local function CanHarvest(part)
+    local prompt = part:FindFirstChild("ProximityPrompt")
+    return prompt and prompt.Enabled
+end
+
+local function Harvest()
+    if not HarvestEnabled then return end
+    if isInventoryFull() then return end
+    
+    local garden = FindGarden()
+    if not garden then return end
+    
+    local plants = garden:FindFirstChild("Important") and garden.Important:FindFirstChild("Plants_Physical")
+    if not plants then return end
+    
+    for _, plant in ipairs(plants:GetChildren()) do
+        if not HarvestEnabled then break end
+        local fruits = plant:FindFirstChild("Fruits")
+        if fruits then
+            for _, fruit in ipairs(fruits:GetChildren()) do
+                if not HarvestEnabled then break end
+                for _, part in ipairs(fruit:GetChildren()) do
+                    if not HarvestEnabled then break end
+                    if part:IsA("BasePart") and CanHarvest(part) then
+                        local prompt = part.ProximityPrompt
+                        local pos = part.Position + Vector3.new(0, 3, 0)
+                        if lp.Character and lp.Character.PrimaryPart then
+                            lp.Character:SetPrimaryPartCFrame(CFrame.new(pos))
+                            task.wait(0.1)
+                            if not HarvestEnabled then break end
+                            prompt:InputHoldBegin()
+                            task.wait(0.1)
+                            if not HarvestEnabled then break end
+                            prompt:InputHoldEnd()
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function ToggleHarvest(state)
+    if HarvestConnection then
+        HarvestConnection:Disconnect()
+        HarvestConnection = nil
+    end
+    HarvestEnabled = state
+    if state then
+        HarvestConnection = RunService.Heartbeat:Connect(function()
+            if HarvestEnabled then
+                Harvest()
+            else
+                HarvestConnection:Disconnect()
+                HarvestConnection = nil
+            end
+        end)
+    end
+end
+
+-- Táº¡o nÃºt Fluent UI Auto Harvest
+local AutoHarvestToggle = Tabs.Farm:AddToggle("AutoHarvestToggle", {
+    Title = "Auto Harvest",
+    Default = false
+})
+
+AutoHarvestToggle:OnChanged(function(state)
+    ToggleHarvest(state)
+end)
+
+
+
+
+-- Tabs.Items
+
+
+
+
+
+
+
+-- Auto Claim Premium Seeds Functions
+local autoClaimToggle = true -- máº·c Ä‘á»‹nh báº­t
+local claimConnection = nil
+
+local function claimPremiumSeed()
+    ReplicatedStorage.GameEvents.SeedPackGiverEvent:FireServer("ClaimPremiumPack")
+end
+
+local function toggleAutoClaim(newState)
+    autoClaimToggle = newState
+    if claimConnection then
+        claimConnection:Disconnect()
+        claimConnection = nil
+    end
+    if autoClaimToggle then
+        claimConnection = RunService.Heartbeat:Connect(function()
+            claimPremiumSeed()
+            task.wait()
+        end)
+    end
+end
+
+-- Gá»i ngay khi GUI load
+toggleAutoClaim(true)
+
+-- âœ… NÃºt báº­t táº¯t trong tab Ite
+local AutoClaimToggle = Tabs.Items:AddToggle("AutoClaimPremiumSeedsToggle", {
+    Title = "Auto Claim Premium Seeds",
+    Default = true
+})
+
+AutoClaimToggle:OnChanged(function(state)
+    toggleAutoClaim(state)
+end)
+
+
+
+
+
+-- Mua cÃ´ng cá»¥
+Tabs.Items:AddToggle("AutoBuyGears", {
+    Title = "Auto Buy Gear Items",
+    Default = false,
+    Callback = function(Value)
+        autoBuyGears = Value
+        task.spawn(function()
+            while autoBuyGears do
+                for _, name in ipairs({
+                    "Watering Can","Trowel","Recall Wrench","Basic Sprinkler",
+                    "Advanced Sprinkler","Godly Sprinkler","Lightning Rod",
+                    "Master Sprinkler","Favorite Tool"
+                }) do
+                    ReplicatedStorage.GameEvents.BuyGearStock:FireServer(name)
+                end
+                task.wait(2)
+            end
+        end)
+    end
+})
+
+-- Mua item tá»« Event Shop
+Tabs.Items:AddToggle("AutoBuyEventItems", {
+    Title = "Auto Buy Event Shop Items",
+    Default = false,
+    Callback = function(Value)
+        autoBuyEventItems = Value
+        task.spawn(function()
+            while autoBuyEventItems do
+                for _, name in ipairs({
+                    "Mysterious Crate","Night Egg","Night Seed Pack",
+                    "Blood Banana","Moon Melon","Star Caller",
+                    "Blood Hedgehog","Blood Kiwi","Blood Owl"
+                }) do
+                    ReplicatedStorage.GameEvents.BuyEventShopStock:FireServer(name)
+                end
+                task.wait(2)
+            end
+        end)
+    end
+})
+
+
+
+
+
+
+
+
+local AutoBuyEggToggle = Tabs.Items:AddToggle("AutoBuyEggToggle", {
+    Title = "Auto Buy Egg",
+    Default = false
+})
+
+local Autoegg_autoBuyEnabled = false
+local autoBuyThread = nil
+
+-- Giá»¯ nguyÃªn cÃ¡c biáº¿n vÃ  hÃ m trong code báº¡n gá»­i
+local Autoegg_npc = workspace:WaitForChild("NPCS"):WaitForChild("Pet Stand")
+local Autoegg_timer = Autoegg_npc.Timer.SurfaceGui:WaitForChild("ResetTimeLabel")
+local Autoegg_eggLocations = Autoegg_npc:WaitForChild("EggLocations")
+local Autoegg_events = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents")
+
+local player = game.Players.LocalPlayer
+local originalCFrame = player.Character and player.Character:WaitForChild("HumanoidRootPart").CFrame or CFrame.new()
+local targetCFrame = CFrame.new(-255.12291, 2.99999976, -1.13749218, -0.0163238496, 1.05261321e-07, 0.999866784, -5.92361182e-09, 1, -1.0537206e-07, -0.999866784, -7.64290053e-09, -0.0163238496)
+
+local function Autoegg_safeFirePrompt(prompt)
+    if prompt then
+        pcall(function()
+            fireproximityprompt(prompt)
+        end)
+    end
+end
+
+local function Autoegg_safeFireServer(id)
+    pcall(function()
+        Autoegg_events:WaitForChild("BuyPetEgg"):FireServer(id)
+    end)
+end
+
+local function Autoegg_setAlwaysShow()
+    for _, obj in ipairs(Autoegg_eggLocations:GetChildren()) do
+        for _, child in ipairs(obj:GetDescendants()) do
+            if child:IsA("ProximityPrompt") then
+                child.Exclusivity = Enum.ProximityPromptExclusivity.AlwaysShow
+            end
+        end
+    end
+end
+
+local function Autoegg_autoBuyEggs()
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    if not Autoegg_autoBuyEnabled then return end
+
+    local firstRun = true
+    while Autoegg_autoBuyEnabled do
+        if not firstRun then
+            repeat
+                task.wait(0.1)
+                if not Autoegg_autoBuyEnabled then return end
+            until Autoegg_timer.Text == "00:00:00"
+            task.wait(3)
+        else
+            firstRun = false
+        end
+
+        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+        local originalPos = player.Character.HumanoidRootPart.CFrame
+        player.Character.HumanoidRootPart.CFrame = targetCFrame
+
+        Autoegg_setAlwaysShow()
+
+        local commonEggPrompt = Autoegg_eggLocations:FindFirstChild("Common Egg")
+        if commonEggPrompt then
+            Autoegg_safeFirePrompt(commonEggPrompt:FindFirstChild("ProximityPrompt"))
+            task.wait(0.3)
+            Autoegg_safeFireServer(1)
+        end
+
+        local eggSlot6 = Autoegg_eggLocations:GetChildren()[6]
+        if eggSlot6 then
+            Autoegg_safeFirePrompt(eggSlot6:FindFirstChild("ProximityPrompt"))
+            task.wait(0.3)
+            Autoegg_safeFireServer(2)
+        end
+
+        local eggSlot5 = Autoegg_eggLocations:GetChildren()[5]
+        if eggSlot5 then
+            Autoegg_safeFirePrompt(eggSlot5:FindFirstChild("ProximityPrompt"))
+            task.wait(0.3)
+            Autoegg_safeFireServer(3)
+        end
+
+        player.Character.HumanoidRootPart.CFrame = originalPos
+    end
+end
+
+AutoBuyEggToggle:OnChanged(function(state)
+    Autoegg_autoBuyEnabled = state
+    if state then
+        autoBuyThread = task.spawn(function()
+            Autoegg_autoBuyEggs()
+        end)
+    else
+        if autoBuyThread then
+            task.cancel(autoBuyThread)
+            autoBuyThread = nil
+        end
+    end
+end)
+
+
+
+
+
+-- Tabs.Player
+
+
+
+local OneClickRemoveToggle = Tabs.Player:AddToggle("OneClickRemoveToggle", {
+    Title = "One Click Remove",
+    Default = false
+})
+
+local enabled = false
+
+local function OneClickRemove(state)
+    enabled = state
+    local confirmFrame = Players.LocalPlayer.PlayerGui:FindFirstChild("ShovelPrompt")
+    if confirmFrame and confirmFrame:FindFirstChild("ConfirmFrame") then
+        confirmFrame.ConfirmFrame.Visible = not state
+    end
+end
+
+OneClickRemoveToggle:OnChanged(function(state)
+    OneClickRemove(state)
+end)
+
+
+-- Fly Variables & Setup
+local flyEnabled = false
+local flySpeed = 48
+local bodyVelocity, bodyGyro
+local flightConnection
+
+local function Fly(state)
+    flyEnabled = state
+    if flyEnabled then
+        local character = lp.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+
+        bodyGyro = Instance.new("BodyGyro")
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyGyro.P = 9000
+        bodyGyro.MaxTorque = Vector3.new(999999, 999999, 999999)
+        bodyGyro.CFrame = character.HumanoidRootPart.CFrame
+        bodyGyro.Parent = character.HumanoidRootPart
+
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.MaxForce = Vector3.new(999999, 999999, 999999)
+        bodyVelocity.Parent = character.HumanoidRootPart
+
+        humanoid.PlatformStand = true
+
+        flightConnection = RunService.Heartbeat:Connect(function()
+            if not flyEnabled or not character:FindFirstChild("HumanoidRootPart") then
+                if flightConnection then flightConnection:Disconnect() end
+                return
+            end
+
+            local cam = workspace.CurrentCamera.CFrame
+            local moveVec = Vector3.new()
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                moveVec = cam.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                moveVec = cam.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                moveVec = cam.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                moveVec = cam.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                moveVec = Vector3.new(0, flySpeed, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                moveVec = Vector3.new(0, flySpeed, 0)
+            end
+
+            if moveVec.Magnitude > 0 then
+                moveVec = moveVec.Unit * flySpeed
+            end
+
+            bodyVelocity.Velocity = moveVec
+            bodyGyro.CFrame = cam
+        end)
+    else
+        if bodyVelocity then bodyVelocity:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+
+        local character = lp.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.PlatformStand = false
+            end
+        end
+
+        if flightConnection then
+            flightConnection:Disconnect()
+            flightConnection = nil
+        end
+    end
+end
+
+-- ðŸŸ¦ Add to Fluent GUI
+Tabs.Player:AddToggle("FlyToggle", {
+    Title = "Fly [Mobie+PC]",
+    Default = false,
+    Callback = function(state)
+        Fly(state)
+    end
+})
+
+
+
+-- Giáº£ sá»­ báº¡n Ä‘Ã£ cÃ³ biáº¿n Tabs.Ite (Tab hoáº·c Item trong Fluent UI framework cá»§a báº¡n)
+-- MÃ¬nh sáº½ thÃªm 2 toggle cho NoClip vÃ  Infinite Jump
+
+local noclipEnabled = false
+local noclipConn = nil
+
+local function ToggleNoclip(state)
+    noclipEnabled = state
+    if noclipEnabled and not noclipConn then
+        noclipConn = RunService.Stepped:Connect(function()
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end)
+    elseif not noclipEnabled and noclipConn then
+        noclipConn:Disconnect()
+        noclipConn = nil
+    end
+end
+
+local infJumpEnabled = false
+
+local function ToggleInfJump(state)
+    infJumpEnabled = state
+end
+
+if not infJumpConn then
+    infJumpConn = UserInputService.JumpRequest:Connect(function()
+        if infJumpEnabled and char and char:FindFirstChildOfClass("Humanoid") then
+            char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end)
+end
+
+-- Táº¡o toggle NoClip
+local NoClipToggle = Tabs.Player:AddToggle("NoClipToggle", {
+    Title = "NoClip",
+    Default = false
+})
+
+NoClipToggle:OnChanged(function(state)
+    ToggleNoclip(state)
+end)
+
+-- Táº¡o toggle Infinite Jump
+local InfJumpToggle = Tabs.Player:AddToggle("InfJumpToggle", {
+    Title = "Infinite Jump",
+    Default = false
+})
+
+InfJumpToggle:OnChanged(function(state)
+    ToggleInfJump(state)
+end)
+
+
+
+
+
+
+-- Tabs.Misc
+
+-- Biáº¿n local player
+local lp = game.Players.LocalPlayer
+
+-- Toggle Seed Shop
+local SeedShopToggle = Tabs.Misc:AddToggle("SeedShopToggle", {
+    Title = "Seed Shop",
+    Default = false
+})
+
+SeedShopToggle:OnChanged(function(state)
+    local shop = lp.PlayerGui:FindFirstChild("Seed_Shop")
+    if shop then
+        shop.Enabled = state
+    end
+end)
+
+-- Toggle Gear Shop
+local GearShopToggle = Tabs.Misc:AddToggle("GearShopToggle", {
+    Title = "Gear Shop",
+    Default = false
+})
+
+GearShopToggle:OnChanged(function(state)
+    local gear = lp.PlayerGui:FindFirstChild("Gear_Shop")
+    if gear then
+        gear.Enabled = state
+    end
+end)
+
+-- Toggle Easter Shop
+local EasterShopToggle = Tabs.Misc:AddToggle("EasterShopToggle", {
+    Title = "Easter Shop",
+    Default = false
+})
+
+EasterShopToggle:OnChanged(function(state)
+    local easter = lp.PlayerGui:FindFirstChild("Easter_Shop")
+    if easter then
+        easter.Enabled = state
+    end
+end)
+
+-- Toggle Daily Quest
+local QuestToggle = Tabs.Misc:AddToggle("QuestToggle", {
+    Title = "Daily Quest",
+    Default = false
+})
+
+QuestToggle:OnChanged(function(state)
+    local quest = lp.PlayerGui:FindFirstChild("DailyQuests_UI")
+    if quest then
+        quest.Enabled = state
+    end
+end)
+
+
+
+
+
+
+-- Tabs.Settings
+
+
+
+
+
+
+
+
+
+----------- Button On/Off -----------
+
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local ExistingUI = CoreGui:FindFirstChild("SkullHubMinimizeUI")
+if ExistingUI then
+    ExistingUI:Destroy()
+end
+
+-- Create Floating UI
+local DragUI = Instance.new("ScreenGui")
+DragUI.Name = "SkullHubMinimizeUI"
+DragUI.ResetOnSpawn = false
+DragUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling -- Ensures highest rendering priority
+DragUI.Parent = CoreGui -- Overrides all other UI elements
+
+-- Create Circular Button (Draggable + Clickable)
+local Button = Instance.new("ImageButton")
+Button.Parent = DragUI
+Button.Size = UDim2.new(0, 50, 0, 50) -- Adjust size if needed
+Button.Position = UDim2.new(0, 10, 1, -85) -- Initial position
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Windows 11 Style
+Button.BackgroundTransparency = 0.3 -- Semi-transparent
+Button.BorderSizePixel = 0
+Button.ClipsDescendants = true
+Button.Image = "rbxassetid://90508203972003" -- Replace with your custom image ID
+Button.ScaleType = Enum.ScaleType.Fit
+Button.Active = true -- Allows drag functionality
+Button.ZIndex = 1000 -- Ensure it stays on top
+
+-- Make UI Circular
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0) -- Full circle
+UICorner.Parent = Button
+
+-- Tween Info for Animations
+local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+-- Function to simulate RightShift key press
+local function SimulateKeyPress()
+    VirtualInputManager:SendKeyEvent(true, minimizeUI, false, game)
+    task.wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, minimizeUI, false, game)
+end
+
+-- Click Animation & UI Toggle (Only if NOT dragged too much)
+local isDragging = false
+local dragThreshold = 10 -- Allow small movement without canceling click
+
+Button.MouseButton1Click:Connect(function()
+    if isDragging then return end -- Prevent click after large dragging
+
+    -- Enhanced Click Animation
+    local tween = TweenService:Create(Button, tweenInfo, {
+        BackgroundTransparency = 0.5,
+        Size = UDim2.new(0, 45, 0, 45),
+        Rotation = 5
+    })
+    tween:Play()
+    task.wait(0.1)
+    local tweenBack = TweenService:Create(Button, tweenInfo, {
+        BackgroundTransparency = 0.3,
+        Size = UDim2.new(0, 50, 0, 50),
+        Rotation = 0
+    })
+    tweenBack:Play()
+
+    -- Simulate RightShift to Toggle UI
+    SimulateKeyPress()
+end)
+
+-- Hover Animation
+Button.MouseEnter:Connect(function()
+    TweenService:Create(Button, tweenInfo, {Size = UDim2.new(0, 55, 0, 55)}):Play()
+end)
+
+Button.MouseLeave:Connect(function()
+    TweenService:Create(Button, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+
+-- Dragging Logic for PC & Mobile
 local dragging, dragStart, startPos
 
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
-        startPos = mainFrame.Position
-    end
-end)
+local function StartDrag(input)
+    isDragging = false -- Reset dragging state
+    dragging = true
+    dragStart = input.Position
+    startPos = Button.Position
 
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
+    input.Changed:Connect(function()
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
+        end
+    end)
+end
 
-RunService.RenderStepped:Connect(function()
+local function OnDrag(input)
     if dragging then
-        local mouse = UserInputService:GetMouseLocation()
-        local delta = mouse - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-local isMinimized = false
-minimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-
-        local currentPos = mainFrame.Position
-
-        mainFrame.Size = UDim2.new(0, 600, 0, 25) -- Giữ chiều rộng 600, chiều cao 25
-        textEditor.Visible = false
-
-        mainFrame.Position = UDim2.new(currentPos.X.Scale, currentPos.X.Offset, currentPos.Y.Scale, currentPos.Y.Offset + 10)
-    else
-
-        mainFrame.Size = UDim2.new(0, 600, 0, 400)
-        textEditor.Visible = true
-
-        mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-    end
-end)
-
-
-closeButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
-end)
-
-
-local toggleButton = Instance.new("ImageButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-toggleButton.Image = "http://www.roblox.com/asset/?id=75876765129205"
-toggleButton.ScaleType = Enum.ScaleType.Fit
-toggleButton.Parent = screenGui
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleButton
-
-local toggleDragging, toggleDragStart, toggleStartPos
-
-toggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        toggleDragging = true
-        toggleDragStart = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
-        toggleStartPos = toggleButton.Position
-    end
-end)
-
-toggleButton.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        toggleDragging = false
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if toggleDragging then
-        local mouse = UserInputService:GetMouseLocation()
-        local delta = mouse - toggleDragStart
-        local screenSize = screenGui.AbsoluteSize
-        local newX = toggleStartPos.X.Offset + delta.X
-        local newY = toggleStartPos.Y.Offset + delta.Y
-        newX = math.clamp(newX, 0, screenSize.X - toggleButton.AbsoluteSize.X)
-        newY = math.clamp(newY, 0, screenSize.Y - toggleButton.AbsoluteSize.Y)
-        toggleButton.Position = UDim2.new(toggleStartPos.X.Scale, newX, toggleStartPos.Y.Scale, newY)
-    end
-end)
-
-local isVisible = true
-toggleButton.MouseButton1Click:Connect(function()
-    isVisible = not isVisible
-    mainFrame.Visible = isVisible
-end)
-
-local executeButton = Instance.new("TextButton")
-executeButton.Size = UDim2.new(0, 80, 0, 25)
-executeButton.Position = UDim2.new(0, 10, 1, -35)
-executeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-executeButton.Text = "Execute"
-executeButton.Font = Enum.Font.Gotham
-executeButton.TextSize = 14
-executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-executeButton.Parent = mainFrame
-
-local executeCorner = Instance.new("UICorner")
-executeCorner.CornerRadius = UDim.new(0, 10)
-executeCorner.Parent = executeButton
-
-local clearButton = Instance.new("TextButton")
-clearButton.Size = UDim2.new(0, 80, 0, 25)
-clearButton.Position = UDim2.new(0, 100, 1, -35)
-clearButton.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-clearButton.Text = "Clear"
-clearButton.Font = Enum.Font.Gotham
-clearButton.TextSize = 14
-clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-clearButton.Parent = mainFrame
-
-local clearCorner = Instance.new("UICorner")
-clearCorner.CornerRadius = UDim.new(0, 10)
-clearCorner.Parent = clearButton
-
-local scriptHubButton = Instance.new("TextButton")
-scriptHubButton.Size = UDim2.new(0, 80, 0, 25)
-scriptHubButton.Position = UDim2.new(0, 190, 1, -35) -- Bên phải Clear
-scriptHubButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-scriptHubButton.Text = "Script Hub"
-scriptHubButton.Font = Enum.Font.Gotham
-scriptHubButton.TextSize = 14
-scriptHubButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-scriptHubButton.Parent = mainFrame
-
-local scriptHubCorner = Instance.new("UICorner")
-scriptHubCorner.CornerRadius = UDim.new(0, 10)
-scriptHubCorner.Parent = scriptHubButton
-
-local spyButton = Instance.new("TextButton")
-spyButton.Size = UDim2.new(0, 80, 0, 25)
-spyButton.Position = UDim2.new(0, 280, 1, -35) -- Bên phải Script Hub
-spyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-spyButton.Text = "Simple Spy"
-spyButton.Font = Enum.Font.Gotham
-spyButton.TextSize = 14
-spyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-spyButton.Parent = mainFrame
-
-local spyCorner = Instance.new("UICorner")
-spyCorner.CornerRadius = UDim.new(0, 10)
-spyCorner.Parent = spyButton
-
-spyButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/78n/SimpleSpy/main/SimpleSpySource.lua"))()
-end)
-
--- Nút esp
-local espButton = Instance.new("TextButton")
-espButton.Size = UDim2.new(0, 80, 0, 25)
-espButton.Position = UDim2.new(0, 370, 1, -35)
-espButton.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-espButton.Text = "Unnamed ESP"
-espButton.Font = Enum.Font.Gotham
-espButton.TextSize = 14
-espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-espButton.Parent = mainFrame
-
-local espCorner = Instance.new("UICorner")
-espCorner.CornerRadius = UDim.new(0, 10)
-espCorner.Parent = espButton
-
-espButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua"))()
-end)
-
-local injectedLabel = Instance.new("TextLabel")
-injectedLabel.Size = UDim2.new(0, 80, 0, 25)
-injectedLabel.Position = UDim2.new(1, -90, 1, -35)
-injectedLabel.BackgroundTransparency = 1
-injectedLabel.Text = "Injected"
-injectedLabel.Font = Enum.Font.Gotham
-injectedLabel.TextSize = 14
-injectedLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-injectedLabel.Parent = mainFrame
-
-clearButton.MouseButton1Click:Connect(function()
-    textEditor.Text = ""
-end)
-
-local function createUnrestrictedEnvironment()
-    local env = getfenv()
-    -- Thêm các hàm bị chặn trong Roblox (giả lập)
-    env.require = function(id)
-        return loadstring(game:HttpGet("https://raw.githubusercontent.com/some/repo/script.lua"))
-    end
-    env.getrawmetatable = function(t) return getmetatable(t) end
-    env.setfenv = setfenv or function(f, e) return f end
-    env.getfenv = getfenv or function(f) return env end
-    env.os = { time = os.time, date = os.date }
-    env.debug = { traceback = debug.traceback }
-    return env
-end
-
-executeButton.MouseButton1Click:Connect(function()
-    local scriptText = textEditor.Text
-    if scriptText and scriptText ~= "" then
-
-        local func, syntaxError = loadstring(scriptText)
-        if not func then
-            warn("Syntax Error: " .. syntaxError)
-            return
+        local delta = (input.Position - dragStart).Magnitude
+        if delta > dragThreshold then -- Only mark as dragged if movement exceeds threshold
+            isDragging = true
         end
-
-        local unrestrictedEnv = createUnrestrictedEnvironment()
-        setfenv(func, unrestrictedEnv)
-
-        local success, runtimeError = pcall(function()
-            func() -- Chạy script
-        end)
-        if not success then
-            warn("Runtime Error: " .. runtimeError)
-        end
-    end
-end)
-
-local scriptHubFrame = Instance.new("Frame")
-scriptHubFrame.Size = UDim2.new(0, 150, 0, 150)
-scriptHubFrame.Position = UDim2.new(0, mainFrame.AbsolutePosition.X + 190, 0, mainFrame.AbsolutePosition.Y + 410)
-scriptHubFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-scriptHubFrame.BorderSizePixel = 0
-scriptHubFrame.Visible = false
-scriptHubFrame.Parent = screenGui
-
-local scriptHubFrameCorner = Instance.new("UICorner")
-scriptHubFrameCorner.CornerRadius = UDim.new(0, 10)
-scriptHubFrameCorner.Parent = scriptHubFrame
-
-local uncTestButton = Instance.new("TextButton")
-uncTestButton.Size = UDim2.new(0, 130, 0, 25)
-uncTestButton.Position = UDim2.new(0, 10, 0, 10)
-uncTestButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-uncTestButton.Text = "Unc Test"
-uncTestButton.Font = Enum.Font.Gotham
-uncTestButton.TextSize = 14
-uncTestButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-uncTestButton.Parent = scriptHubFrame
-
-local uncTestCorner = Instance.new("UICorner")
-uncTestCorner.CornerRadius = UDim.new(0, 10)
-uncTestCorner.Parent = uncTestButton
-
-local sUncTestButton = Instance.new("TextButton")
-sUncTestButton.Size = UDim2.new(0, 130, 0, 25)
-sUncTestButton.Position = UDim2.new(0, 10, 0, 40)
-sUncTestButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-sUncTestButton.Text = "sUnc Test"
-sUncTestButton.Font = Enum.Font.Gotham
-sUncTestButton.TextSize = 14
-sUncTestButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-sUncTestButton.Parent = scriptHubFrame
-
-local sUncTestCorner = Instance.new("UICorner")
-sUncTestCorner.CornerRadius = UDim.new(0, 10)
-sUncTestCorner.Parent = sUncTestButton
-
-local infiniteYieldButton = Instance.new("TextButton")
-infiniteYieldButton.Size = UDim2.new(0, 130, 0, 25)
-infiniteYieldButton.Position = UDim2.new(0, 10, 0, 70)
-infiniteYieldButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-infiniteYieldButton.Text = "Infinite Yield"
-infiniteYieldButton.Font = Enum.Font.Gotham
-infiniteYieldButton.TextSize = 14
-infiniteYieldButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-infiniteYieldButton.Parent = scriptHubFrame
-
-local infiniteYieldCorner = Instance.new("UICorner")
-infiniteYieldCorner.CornerRadius = UDim.new(0, 10)
-infiniteYieldCorner.Parent = infiniteYieldButton
-
-local dexExploitButton = Instance.new("TextButton")
-dexExploitButton.Size = UDim2.new(0, 130, 0, 25)
-dexExploitButton.Position = UDim2.new(0, 10, 0, 100)
-dexExploitButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-dexExploitButton.Text = "Dex Exploit"
-dexExploitButton.Font = Enum.Font.Gotham
-dexExploitButton.TextSize = 14
-dexExploitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-dexExploitButton.Parent = scriptHubFrame
-
-local dexExploitCorner = Instance.new("UICorner")
-dexExploitCorner.CornerRadius = UDim.new(0, 10)
-dexExploitCorner.Parent = dexExploitButton
-
--- Logic cho các nút trong Script Hub Frame
-uncTestButton.MouseButton1Click:Connect(function()
-    textEditor.Text = "loadstring(game:HttpGet('https://raw.githubusercontent.com/unified-naming-convention/NamingStandard/refs/heads/main/UNCCheckEnv.lua'))()"
-end)
-
-sUncTestButton.MouseButton1Click:Connect(function()
-    textEditor.Text = "loadstring(game:HttpGet(\"https://gitlab.com/sens3/nebunu/-/raw/main/HummingBird8's_sUNC_yes_i_moved_to_gitlab_because_my_github_acc_got_brickedd/sUNCm0m3n7.lua\"))()"
-end)
-
-infiniteYieldButton.MouseButton1Click:Connect(function()
-    textEditor.Text = "loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()"
-end)
-
-dexExploitButton.MouseButton1Click:Connect(function()
-    textEditor.Text = "loadstring(game:HttpGet(\"https://cdn.wearedevs.net/scripts/Dex%20Explorer.txt\"))()"
-end)
-
--- Logic nút Script Hub (toggle bảng nhỏ)
-local isScriptHubOpen = false
-scriptHubButton.MouseButton1Click:Connect(function()
-    isScriptHubOpen = not isScriptHubOpen
-    if isScriptHubOpen then
-        -- Cập nhật vị trí của scriptHubFrame dựa trên vị trí tuyệt đối của mainFrame và nút Script Hub
-        local hubPos = scriptHubButton.AbsolutePosition
-        scriptHubFrame.Position = UDim2.new(0, hubPos.X, 0, hubPos.Y + scriptHubButton.AbsoluteSize.Y + 5)
-    end
-    scriptHubFrame.Visible = isScriptHubOpen
-end)
-
--- Hàm thêm hiệu ứng hover
-local function addHoverEffect(button, hoverColor)
-    button.MouseEnter:Connect(function()
-        button.BackgroundColor3 = hoverColor
-    end)
-    button.MouseLeave:Connect(function()
-        if button == minimizeButton then
-            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        elseif button == closeButton then
-            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        elseif button == toggleButton then
-            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        elseif button == executeButton then
-            button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        elseif button == clearButton then
-            button.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-        elseif button == espButton then
-            button.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-        elseif button == spyButton then
-            button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-        elseif button == scriptHubButton then
-            button.BackgroundColor3 = Color3.fromRGB(70, 170, 70)
-        elseif button == uncTestButton or button == sUncTestButton or button == infiniteYieldButton or button == dexExploitButton then
-            button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-        end
-    end)
-end
-
--- Thêm hiệu ứng hover cho các nút
-addHoverEffect(minimizeButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(closeButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(toggleButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(executeButton, Color3.fromRGB(120, 120, 120))
-addHoverEffect(clearButton, Color3.fromRGB(180, 70, 70))
-addHoverEffect(espButton, Color3.fromRGB(70, 70, 200))
-addHoverEffect(spyButton, Color3.fromRGB(230, 0, 0))
-addHoverEffect(scriptHubButton, Color3.fromRGB(70, 170, 70))
-addHoverEffect(uncTestButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(sUncTestButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(infiniteYieldButton, Color3.fromRGB(100, 100, 100))
-addHoverEffect(dexExploitButton, Color3.fromRGB(100, 100, 100))
--- Khởi chạy hệ thống key
-local function initKeySystem()
-    local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-    if player then
-        createKeySystem()
+        Button.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + (input.Position.X - dragStart.X),
+            startPos.Y.Scale,
+            startPos.Y.Offset + (input.Position.Y - dragStart.Y)
+        )
     end
 end
 
--- Khởi chạy script
-initKeySystem()
+-- Dragging Support for PC & Mobile (on the same button)
+Button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        StartDrag(input)
+    end
+end)
+
+Button.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        OnDrag(input)
+    end
+end)
